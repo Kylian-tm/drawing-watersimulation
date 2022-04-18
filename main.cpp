@@ -147,7 +147,8 @@ void movement(){
 
 /*
 BUGS:
-    side cells going on on the other side of the grid
+    - side cells going on on the other side of the grid
+    - map drawing
 
 BACKUP:
         // setting up the grid
