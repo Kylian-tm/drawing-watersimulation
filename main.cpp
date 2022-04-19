@@ -10,7 +10,7 @@ using namespace std::literals::chrono_literals;
 void alterCellstate(int j);
 void movement();
 
-sf::RenderWindow window(sf::VideoMode(300,300), "");    
+sf::RenderWindow window(sf::VideoMode(350,350), "simulation");    
 
 sf::RectangleShape cell(sf::Vector2f(25,25));
 std::vector<sf::RectangleShape> grid;
@@ -19,7 +19,7 @@ int CellPosY = 0;
 
 sf::CircleShape cursor;
 sf::Vector2i mousePos = sf::Mouse::getPosition( window );
-    
+
 int cellstate[36] = {0, 0, 0, 0, 0, 0,
                      0, 0, 0, 0, 0, 0,
                      0, 0, 0, 0, 0, 0,
@@ -40,7 +40,7 @@ int main(){
     // setting up the grid
     for(int i=0; i<sizeof(cellstate); i++){
         grid.push_back(cell);
-        if(i<=rowSize-1){
+        if(i<=10){
             grid[i].setPosition(i*25, CellPosY);
         }else if(i%rowSize==0){
             CellPosY=CellPosY+25;
@@ -59,29 +59,18 @@ int main(){
         cursor.setPosition(mousePos.x, mousePos.y);
         movement();
 
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-        {
-            for(int j=0; j<grid.size(); j++){
-                if (cursor.getGlobalBounds().intersects(grid[j].getGlobalBounds()))
-                {
+        //button events
+        for(int j=0; j<grid.size(); j++){
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+                if(cursor.getGlobalBounds().intersects(grid[j].getGlobalBounds())){
                     cellstate[j]=1;
                 }
-            }
-        }
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
-        {
-            for(int j=0; j<grid.size(); j++){
-                if (cursor.getGlobalBounds().intersects(grid[j].getGlobalBounds()))
-                {
+            }else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)){
+                if(cursor.getGlobalBounds().intersects(grid[j].getGlobalBounds())){
                     cellstate[j]=2;
                 }
-            }
-        }
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
-        {
-            for(int j=0; j<grid.size(); j++){
-                if (cursor.getGlobalBounds().intersects(grid[j].getGlobalBounds()))
-                {
+            }else if (sf::Mouse::isButtonPressed(sf::Mouse::Middle)){
+                if(cursor.getGlobalBounds().intersects(grid[j].getGlobalBounds())){
                     cellstate[j]=0;
                 }
             }
@@ -101,9 +90,9 @@ int main(){
         }
 
         window.clear();
-        for(int i=0; i<grid.size(); i++){
-            window.draw(grid[i]);
-            alterCellstate(i);
+        for(int o=0; o<grid.size(); o++){
+            window.draw(grid[o]);
+            alterCellstate(o);
         }
         window.display();
         std::this_thread::sleep_for(0.08s);
@@ -123,7 +112,7 @@ void alterCellstate(int j){
 
 void movement(){
     for(int p=0; p<grid.size(); p++){
-        if(cellstate[p] == 2 && p <= sizeof(cellstate)-rowSize){
+        if(cellstate[p]==2 && p <= sizeof(cellstate)-rowSize){
             // check cellstate of cell below
             if(cellstate[p+rowSize]==0){                      
                 cellstate[p]-=2;
@@ -135,11 +124,14 @@ void movement(){
                 if(cellstate[p+(rowSize-1)]==0 && cellstate[p-1]!=1){
                     cellstate[p]-=2;
                     cellstate[p+(rowSize-1)]=2;
-                }
-                if(cellstate[p+(rowSize+1)]==0 && cellstate[p+1]!=1){
+                }else if(cellstate[p+(rowSize+1)]==0 && cellstate[p+1]!=1){
                     cellstate[p]-=2;
                     cellstate[p+(rowSize+1)]=2;
                 }
+            }
+
+            if(cellstate[p+rowSize]==2){
+                // make this work
             }
         }
     }
@@ -147,22 +139,7 @@ void movement(){
 
 /*
 BUGS:
-    - side cells going on on the other side of the grid
-    - map drawing
-
-BACKUP:
-        // setting up the grid
-        if(i<=5){
-            grid[i].setPosition(i*25, 0);
-        }else if(i>5 && i<12){
-            grid[i].setPosition(grid[i-6].getPosition().x, 25);
-        }else if(i>=12 && i<18){
-            grid[i].setPosition(grid[i-6].getPosition().x, 50);
-        }else if(i>=18 && i<24){
-            grid[i].setPosition(grid[i-6].getPosition().x, 75);
-        }else if(i>=24 && i<30){
-            grid[i].setPosition(grid[i-6].getPosition().x, 100);
-        }else if(i>=30 && i<36){
-            grid[i].setPosition(grid[i-6].getPosition().x, 125);
-        }
+    - side cells going on on the other side of the grid -> make grid one layer bigger off bounce so that the side cannot be used
+    - map drawing -> i cannot be greater than 10 (?)
+    - water falling over water needs to be designed
 */
